@@ -199,12 +199,13 @@ At first, it's possible to set replicas = 20 and show the time it takes in OpenS
 Raw notes for demo/improvements:
 Interest of native mode:
 JIT vs AOT => faster startup since code is already pre-compiled into efficient machine code
-No need to include infrastructure to load and optimize code at run time => less memory
+No need to include JIT infrastructure to load and optimize code at run time => less memory
 static analysis to embed what's used from the JDK, 3rd party libs and JVM code
 vscode to have auto completion ?
-compare.sh compare disk/boot/rss BEFORE the first request, so do the same during the demo
 Show quarkus live reload ? (update the dev and show result directly in the cluster)
-Does quarkus really improve disk size in jvm mode only ? integrate an unused class and check size for instance ? APPARENTLY IT SHOULD
+Does quarkus really improve disk size in jvm mode only ? integrate an unused class and check size for instance ?
+It does, when quarkus remove beans, we still have .class file but not files like _Bean.class, _ClientProxy.class
+
 An interest of fast startup is that it improve disposability (help to scale, move process to another node...)
 On a public cloud, densification allows the use of smaller instances to run an application so reduce costs
 cloud provider portability => need kubernetes to abstract cloud specific services like object bucket storage => then we still need a framework to use those services => Quarkus
@@ -219,25 +220,118 @@ It also brings faster startup speeds at the expense of dynamic runtime behavior,
 GraalVM operates with a closed world assumption. It analyzes the call tree and removes all the classes/methods/fields that are not used directly.
 One size does not fit all! Quarkus gives you the option to scale up in JVM mode if you need a single instance with a larger heap, or scale out in Native mode if you need more, lighter-weight instances
 
-TODO: I'll present before Justin that will show some EIPs pattern
-TODO: I'll present after Omar that will show how to build and deploy camel quarkus routes with tekton and knative
-
 TODO: tool "dive" to get image details, like image base size... to estimate java size ?
 
 TODO: Add a component customization example in demo (like in https://camel.apache.org/camel-quarkus/latest/user-guide/bootstrap.html)
+TODO: Show mock inject bean (so we need a test)
+TODO: Show XML dsl ? show rest dsl ? Mock inject bean (so we need a test)
 TODO: Maybe start with a non arc RouteBuilder, then say oh I need a bean, or whatnot, so add @ApplicationScoped on the route.
       And actually, is there any scenarios where we would take the boot time penalty of using @ApplicationScoped route ?
+
+TODO: Adding a native resource inclusion from application.properties would be good
+
+TODO: https://camel.apache.org/camel-quarkus/latest/user-guide/bootstrap.html#_camel_main 
+   Use functionalities from camel-quarkus-main
+   configure component by properties camel.component.log.exchange-formatter =  ***
+   use convention like, a single ExchangeFormatter instance in the CDI container, then it will automatically wire that bean to the LogComponent
+   quarkus command mode ? would need a kind of custom logic before starting camel
+   Specify xml route path: camel.main.xml-routes = routes/routes.xml
+   Spefify rest dsl: camel.main.xml-rests = rests/rests.xml,
+   Route templates ?
 
 TODO: Fast-jar packaging format in demo
 
 TODO: Deploy to OpenShift using JKube/OpenshiftMavenPlugin ?
       https://developers.redhat.com/blog/2020/08/24/java-development-on-top-of-kubernetes-using-eclipse-jkube/?sc_cid=7013a000002h31QAAQ
 
-TODO: Maybe print the demo plan behind and display it at the bottom of the screen.
+TODO: Maybe add code completion in the demo ?
+    https://marketplace.visualstudio.com/items?itemName=redhat.vscode-apache-camel (VS code CQ code completion)
+    https://marketplace.eclipse.org/content/language-support-apache-camel (eclipse CQ code completion)
+    Quarkus completion may reside in another plugin
+
+TODO: A good demo with knative, insist on some properties offered by fast startup:
+A scenario with some intermittent source of events, like an app/platform/something emitting events needing a log of pods:
++ eventA emitted, knative/keda ? detects it, so 20/30 pods from serviceA running to handle it
++ eventB emitted, knative/keda ? detects it, so 20/30 pods from serviceB running to handle it
+Events could be anything, I just need two events that are mandatory occurring with a big delay between them (sun up/down).
+
+The example should be built on the fact that eventA and eventB don't need to occur at the same moment in any circumstances.
+
+TODO: It could be better if the demo include the communication of something very old with something very new.
+
+For keda with cron I would need a deployment.
+
+From operator hub on crc, I'm able to install;
+OpenShift ServerLess Operator (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-openshift-serverless.html)
+Install KNative Serving (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-knative-serving.html#installing-knative-serving)
+Install KNative Eventing, really needed ? (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-knative-eventing.html#installing-knative-eventing)
+I've then manually created a project named knative
+
+mvnu clean package -Dquarkus.kubernetes.deploy=true
+I face an issue like 'oapi is not accessible'
+
+I'm trying to deploy the old getting-started projects and it works fine in JVM mode. NAtiv emdoe ?
+
+Since I have some issues with my crc cluster, I'm trying to run it with more cpus and memory as below:
+[agallice@agallice crc-ocp4]$ crc start -b crc-linux-1.20.0-amd64/crc_libvirt_4.6.6.crcbundle -c 8 -m 15000
+We should be able to set mem and cpus once and for all with:
+crc config set cpus <number>
+crc config set memory <number-in-mib>
+
+It looks I was able to deploy to knative in JVM version. No pods are triggered, but it's normal I think.
+Looks I can get the url with
+kn service list
+
+Perharps show it first with http:
+http http://hello-cq-knative-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode <<< '{room : {temperature : 40}}'
+
+And then push a burst (the 10k commands seems to ruin the server):
+hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode
+It takes total = 30s with 2/3 of requests returning http 200
+
+with the command below:
+watch 'oc get pods | grep deployment'
+We are abke to see the burst answer by more pods
+
+Still I have an issue when deploying in native mode:
+[ERROR] Failed to execute goal io.quarkus:quarkus-maven-plugin:1.8.0.Final:build (default) on project hello-cq-knative-native-mode: Failed to build quarkus application: io.quarkus.builder.BuildException: Build failure: Build failed due to errors
+[ERROR] 	[error]: Build step io.quarkus.container.image.s2i.deployment.S2iProcessor#s2iBuildFromNative threw an exception: io.dekorate.deps.openshift.client.OpenShiftNotAvailableException: OpenShift is not available. Root paths at: https://api.crc.testing:6443/ do not include oapi.
+[ERROR] 	at io.dekorate.deps.openshift.client.OpenShiftExtensionAdapter.adapt(OpenShiftExtensionAdapter.java:46)
+[ERROR] 	at io.dekorate.deps.openshift.client.OpenShiftExtensionAdapter.adapt(OpenShiftExtensionAdapter.java:33)
+[ERROR] 	at io.dekorate.deps.kubernetes.client.BaseClient.adapt(BaseClient.java:128)
+[ERROR] 	at io.quarkus.container.image.s2i.deployment.S2iProcessor.createContainerImage(S2iProcessor.java:243)
+[ERROR] 	at io.quarkus.container.image.s2i.deployment.S2iProcessor.s2iBuildFromNative(S2iProcessor.java:219)
+[ERROR] 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+[ERROR] 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+[ERROR] 	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+[ERROR] 	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+[ERROR] 	at io.quarkus.deployment.ExtensionLoader$2.execute(ExtensionLoader.java:936)
+[ERROR] 	at io.quarkus.builder.BuildContext.run(BuildContext.java:277)
+[ERROR] 	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
+[ERROR] 	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2046)
+[ERROR] 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1578)
+[ERROR] 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1452)
+[ERROR] 	at java.base/java.lang.Thread.run(Thread.java:834)
+[ERROR] 	at org.jboss.threads.JBossThread.run(JBossThread.java:479)
+[ERROR] -> [Help 1]
+
+TODO: upgrade to quarkus 1.10.3
+
+crc oc-env # did not help but looks interesting to keep in mind
+
+Looks like some quarkus.knative.name.* properties exist (https://quarkus.io/guides/kubernetes)
+
+From this page, it looks that we absolutely need to use TLS for Red Hat Integration - AMQ Broker:
+https://access.redhat.com/documentation/en-us/red_hat_amq/7.7/html-single/deploying_amq_broker_on_openshift/index#con_br-networking-services-in-broker-deployments_broker-ocp
+
+We would need a demo in the middle of getting started with camel-quarkus and an integration running with camel-k.
+No Camel-K => No Camel Sources
+
+Follow up on Knative tutorial:
+https://www.openshift.com/blog/knative-serving-your-serverless-services?extIdCarryOver=true&sc_cid=701f2000001OH7TAAW
 
 When I boot offline, then start crc, I get the issue below:
 ERRO Failed to query DNS from host: lookup api.crc.testing on [::1]:53: read udp [::1]:36955->[::1]:53: read: connection refused
 Maybe an app listening on port 53 ? Only when started without network ?
 Then, I replug the network, start vpn and I can start crc again
 ----
-

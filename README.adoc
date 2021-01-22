@@ -5,29 +5,34 @@
 [source,shell]
 ----
 # Start a cluster, for instance:
-crc start -b crc-linux-1.8.0-amd64/crc_libvirt_4.3.8.crcbundle
+crc start -b crc-linux-1.21.0-amd64/crc_libvirt_4.6.9.crcbundle -c 8 -m 15000
 
 # Login
 oc login -u kubeadmin -p <PASSWORD> https://api.crc.testing:6443
 
+# Install OpenShift ServerLess Operator from the UI (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-openshift-serverless.html)
++ Operators/Operator Hub/Fitler (OpenShift ServerLess)
++ Click Install / Install
++ Click view operator / KNative Serving / Create Instance/YAML view
++ Set namespace to knative-serving
++ Click create
+
+# Install KNative Serving (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-knative-serving.html#installing-knative-serving) # TODO: really needed ?
+# Manually create a project named 'knative # TODO: really needed ?
+
 # Clone the git demo project locally
 cd camel-quarkus-demo
-git clone https://github.com/aldettinger/camel-quarkus-hellos.git camel-quarkus-hellos
+git clone https://github.com/aldettinger/getting-further-with-camel-on-quarkus.git getting-further-with-camel-on-quarkus
 
-# Deploy hellos project to the crc cluster
-cd camel-hellos
-mvnu clean package -Dquarkus.kubernetes.deploy=true
+# Deploy cq-knative-* projects to the crc cluster (need to do it in debug because of issue https://github.com/quarkusio/quarkus/issues/14034)
+mvnDebug -s ~/.m2/settings-camel-upstream.xml clean package -Dquarkus.kubernetes.deploy=true
 
-# Check that the jvm mode pod is working
-curl -X PUT -d '{ "room" : { "temperature" : 35}}' http://hello-camel-quarkus-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode --resolve hello-camel-quarkus-jvm-mode-default.apps-crc.testing:$(crc ip)
-curl http://hello-camel-quarkus-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode --resolve hello-camel-quarkus-jvm-mode-default.apps-crc.testing:$(crc ip)
+# Get urls
+kn service list
 
-# Check that the native mode pod is working
-# ERROR logs from pdfont are excluded as the log level is set to FATAL
-curl -X PUT -d '{ "room" : { "temperature" : 20}}' http://hello-camel-quarkus-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode --resolve hello-camel-quarkus-native-mode-default.apps-crc.testing:$(crc ip)
-curl http://hello-camel-quarkus-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode --resolve hello-camel-quarkus-native-mode-default.apps-crc.testing:$(crc ip)
-
-!!! STEPS ABOVE ARE NOT NEEDED AT THIS STAGE, START HERE !!!
+# Check that the jvm and native mode services are working
+http http://hello-cq-knative-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode <<< '{room : {temperature : 40}}'
+http http://hello-cq-knative-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode <<< '{room : {temperature : 40}}'
 
 # Open terminator
 rm -fr ~/dev/demos/camel-quarkus-demo/my-quarkus-project/
@@ -259,31 +264,10 @@ The example should be built on the fact that eventA and eventB don't need to occ
 
 TODO: It could be better if the demo include the communication of something very old with something very new.
 
-For keda with cron I would need a deployment.
-
-From operator hub on crc, I'm able to install;
-OpenShift ServerLess Operator (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-openshift-serverless.html)
-Install KNative Serving (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-knative-serving.html#installing-knative-serving)
-Install KNative Eventing, really needed ? (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-knative-eventing.html#installing-knative-eventing)
-I've then manually created a project named knative
-
-mvnu clean package -Dquarkus.kubernetes.deploy=true
-I face an issue like 'oapi is not accessible'
-
-I'm trying to deploy the old getting-started projects and it works fine in JVM mode. NAtiv emdoe ?
-
-Since I have some issues with my crc cluster, I'm trying to run it with more cpus and memory as below:
-[agallice@agallice crc-ocp4]$ crc start -b crc-linux-1.20.0-amd64/crc_libvirt_4.6.6.crcbundle -c 8 -m 15000
-We should be able to set mem and cpus once and for all with:
+TODO: set cpus and memory once and for all:
 crc config set cpus <number>
 crc config set memory <number-in-mib>
 
-It looks I was able to deploy to knative in JVM version. No pods are triggered, but it's normal I think.
-Looks I can get the url with
-kn service list
-
-Perharps show it first with http:
-http http://hello-cq-knative-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode <<< '{room : {temperature : 40}}'
 
 And then push a burst (the 10k commands seems to ruin the server):
 hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode
@@ -293,29 +277,15 @@ with the command below:
 watch 'oc get pods | grep deployment'
 We are abke to see the burst answer by more pods
 
-Still I have an issue when deploying in native mode:
-[ERROR] Failed to execute goal io.quarkus:quarkus-maven-plugin:1.8.0.Final:build (default) on project hello-cq-knative-native-mode: Failed to build quarkus application: io.quarkus.builder.BuildException: Build failure: Build failed due to errors
-[ERROR] 	[error]: Build step io.quarkus.container.image.s2i.deployment.S2iProcessor#s2iBuildFromNative threw an exception: io.dekorate.deps.openshift.client.OpenShiftNotAvailableException: OpenShift is not available. Root paths at: https://api.crc.testing:6443/ do not include oapi.
-[ERROR] 	at io.dekorate.deps.openshift.client.OpenShiftExtensionAdapter.adapt(OpenShiftExtensionAdapter.java:46)
-[ERROR] 	at io.dekorate.deps.openshift.client.OpenShiftExtensionAdapter.adapt(OpenShiftExtensionAdapter.java:33)
-[ERROR] 	at io.dekorate.deps.kubernetes.client.BaseClient.adapt(BaseClient.java:128)
-[ERROR] 	at io.quarkus.container.image.s2i.deployment.S2iProcessor.createContainerImage(S2iProcessor.java:243)
-[ERROR] 	at io.quarkus.container.image.s2i.deployment.S2iProcessor.s2iBuildFromNative(S2iProcessor.java:219)
-[ERROR] 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-[ERROR] 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-[ERROR] 	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-[ERROR] 	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-[ERROR] 	at io.quarkus.deployment.ExtensionLoader$2.execute(ExtensionLoader.java:936)
-[ERROR] 	at io.quarkus.builder.BuildContext.run(BuildContext.java:277)
-[ERROR] 	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35)
-[ERROR] 	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2046)
-[ERROR] 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1578)
-[ERROR] 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1452)
-[ERROR] 	at java.base/java.lang.Thread.run(Thread.java:834)
-[ERROR] 	at org.jboss.threads.JBossThread.run(JBossThread.java:479)
-[ERROR] -> [Help 1]
+Trying to debug with:
+mvnDebug -s ~/.m2/settings-camel-upstream.xml clean package -Dquarkus.kubernetes.deploy=true
+But then, the build was ok (it was after an upgrade to graalvm 20.3.0 / java 11.0.9.
 
-TODO: upgrade to quarkus 1.10.3
+Now, trying to scale in native:
+http http://hello-cq-knative-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode <<< '{room : {temperature : 40}}'
+
+hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode
+It takes total = 10s with 98% of requests returning http 200 (and we scale to 7 pods)
 
 crc oc-env # did not help but looks interesting to keep in mind
 
@@ -329,6 +299,9 @@ No Camel-K => No Camel Sources
 
 Follow up on Knative tutorial:
 https://www.openshift.com/blog/knative-serving-your-serverless-services?extIdCarryOver=true&sc_cid=701f2000001OH7TAAW
+
+Having a try with replacing crc by opentlc:
+https://labs.opentlc.com/?timeout=false
 
 When I boot offline, then start crc, I get the issue below:
 ERRO Failed to query DNS from host: lookup api.crc.testing on [::1]:53: read udp [::1]:36955->[::1]:53: read: connection refused

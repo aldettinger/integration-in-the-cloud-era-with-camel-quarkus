@@ -5,8 +5,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.acme.quarkus.sample</groupId>
-    <artifactId>hello-cq-knative-native-mode</artifactId>
+    <artifactId>hello-cq-knative</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <properties>
         <quarkus-version>1.10.5.Final</quarkus-version>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
@@ -15,7 +16,6 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.package.type>native</quarkus.package.type>
         <quarkus-plugin.version>${quarkus-version}</quarkus-plugin.version>
         <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
@@ -84,10 +84,6 @@
                         <goals>
                             <goal>build</goal>
                         </goals>
-                        <configuration>
-                            <!--  Limit native-image memory consumption to avoid system swapping -->
-                            <!-- additionalBuildArgs>-J-Xmx5G</additionalBuildArgs -->
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -104,24 +100,6 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${surefire-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <configuration>
-                            <systemProperties>
-                                <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-                            </systemProperties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-
 </project>

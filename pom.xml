@@ -102,4 +102,8 @@
             </plugin>
         </plugins>
     </build>
+    <modules>
+        <module>hello-cq-knative-jvm-mode</module>
+        <module>hello-cq-knative-native-mode</module>
+    </modules>
 </project>

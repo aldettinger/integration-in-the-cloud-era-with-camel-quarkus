@@ -13,7 +13,7 @@ public class MyRouteBuilder extends RouteBuilder {
         // {room: {temperature: 30}}
         from("platform-http:/hello-camel-quarkus-native-mode").
             choice().when(jsonpath("$.room[?(@.temperature > 30)]")).
-                setBody(constant("HOT SAUCISSE")).
+                setBody(constant("HOT SAUCISSE II")).
             otherwise().
                 setBody(simple("{{camel.default-msg}}")).
             end()

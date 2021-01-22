@@ -4,11 +4,11 @@
 
 [source,shell]
 ----
-# Start a cluster, for instance:
-crc start -b crc-linux-1.21.0-amd64/crc_libvirt_4.6.9.crcbundle -c 8 -m 15000
+# Provision "OpenShift 4 Serverless Foundations Lab" cluster
 
 # Login
-oc login -u kubeadmin -p <PASSWORD> https://api.crc.testing:6443
+oc login https://api.cluster-4098.4098.sandbox1083.opentlc.com:6443
+
 
 # Install OpenShift ServerLess Operator from the UI (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-openshift-serverless.html)
 + Operators/Operator Hub/Fitler (OpenShift ServerLess)
@@ -16,23 +16,19 @@ oc login -u kubeadmin -p <PASSWORD> https://api.crc.testing:6443
 + Click view operator / KNative Serving / Create Instance/YAML view
 + Set namespace to knative-serving
 + Click create
-
-# Install KNative Serving (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-knative-serving.html#installing-knative-serving) # TODO: really needed ?
-# Manually create a project named 'knative # TODO: really needed ?
++ oc get pods -n knative-serving (wait all pods to be ready)
 
 # Clone the git demo project locally
 cd camel-quarkus-demo
 git clone https://github.com/aldettinger/getting-further-with-camel-on-quarkus.git getting-further-with-camel-on-quarkus
 
-# Deploy cq-knative-* projects to the crc cluster (need to do it in debug because of issue https://github.com/quarkusio/quarkus/issues/14034)
-mvnDebug -s ~/.m2/settings-camel-upstream.xml clean package -Dquarkus.kubernetes.deploy=true
+# Deploy jvm and native projects to the cluster
+cd hello-cq-knative-native-mode
+mvnu clean package -Dquarkus.kubernetes.deploy=true
 
-# Get urls
-kn service list
-
-# Check that the jvm and native mode services are working
-http http://hello-cq-knative-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode <<< '{room : {temperature : 40}}'
-http http://hello-cq-knative-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode <<< '{room : {temperature : 40}}'
+# Check the services are available
+http http://hello-cq-knative-native-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-native-mode <<< '{room : {temperature : 40}}'
+http http://hello-cq-knative-jvm-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-jvm-mode <<< '{room : {temperature : 40}}'
 
 # Open terminator
 rm -fr ~/dev/demos/camel-quarkus-demo/my-quarkus-project/
@@ -244,11 +240,6 @@ TODO: https://camel.apache.org/camel-quarkus/latest/user-guide/bootstrap.html#_c
    Spefify rest dsl: camel.main.xml-rests = rests/rests.xml,
    Route templates ?
 
-TODO: Fast-jar packaging format in demo
-
-TODO: Deploy to OpenShift using JKube/OpenshiftMavenPlugin ?
-      https://developers.redhat.com/blog/2020/08/24/java-development-on-top-of-kubernetes-using-eclipse-jkube/?sc_cid=7013a000002h31QAAQ
-
 TODO: Maybe add code completion in the demo ?
     https://marketplace.visualstudio.com/items?itemName=redhat.vscode-apache-camel (VS code CQ code completion)
     https://marketplace.eclipse.org/content/language-support-apache-camel (eclipse CQ code completion)
@@ -264,47 +255,17 @@ The example should be built on the fact that eventA and eventB don't need to occ
 
 TODO: It could be better if the demo include the communication of something very old with something very new.
 
-TODO: set cpus and memory once and for all:
-crc config set cpus <number>
-crc config set memory <number-in-mib>
-
-
 And then push a burst (the 10k commands seems to ruin the server):
-hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-jvm-mode-default.apps-crc.testing/hello-camel-quarkus-jvm-mode
-It takes total = 30s with 2/3 of requests returning http 200
+hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-native-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-native-mode
+It takes total = 20s with 98% of requests returning HTTP 200 and we scale up to 8/10 deployments
+
+hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-jvm-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-jvm-mode
+And it takes onlys 6s !!!!!!!
 
 with the command below:
 watch 'oc get pods | grep deployment'
-We are abke to see the burst answer by more pods
-
-Trying to debug with:
-mvnDebug -s ~/.m2/settings-camel-upstream.xml clean package -Dquarkus.kubernetes.deploy=true
-But then, the build was ok (it was after an upgrade to graalvm 20.3.0 / java 11.0.9.
-
-Now, trying to scale in native:
-http http://hello-cq-knative-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode <<< '{room : {temperature : 40}}'
-
-hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-native-mode-default.apps-crc.testing/hello-camel-quarkus-native-mode
-It takes total = 10s with 98% of requests returning http 200 (and we scale to 7 pods)
-
-crc oc-env # did not help but looks interesting to keep in mind
-
-Looks like some quarkus.knative.name.* properties exist (https://quarkus.io/guides/kubernetes)
-
-From this page, it looks that we absolutely need to use TLS for Red Hat Integration - AMQ Broker:
-https://access.redhat.com/documentation/en-us/red_hat_amq/7.7/html-single/deploying_amq_broker_on_openshift/index#con_br-networking-services-in-broker-deployments_broker-ocp
-
-We would need a demo in the middle of getting started with camel-quarkus and an integration running with camel-k.
-No Camel-K => No Camel Sources
+We are able to see the burst answer by more pods
 
 Follow up on Knative tutorial:
 https://www.openshift.com/blog/knative-serving-your-serverless-services?extIdCarryOver=true&sc_cid=701f2000001OH7TAAW
-
-Having a try with replacing crc by opentlc:
-https://labs.opentlc.com/?timeout=false
-
-When I boot offline, then start crc, I get the issue below:
-ERRO Failed to query DNS from host: lookup api.crc.testing on [::1]:53: read udp [::1]:36955->[::1]:53: read: connection refused
-Maybe an app listening on port 53 ? Only when started without network ?
-Then, I replug the network, start vpn and I can start crc again
 ----

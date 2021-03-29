@@ -1,0 +1,11 @@
+# Setting up a default memory requests for all containers in the default namespace
+# As the knative sidecar seems to have none
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limit-range
+spec:
+  limits:
+  - defaultRequest:
+      memory: 50Mi
+    type: Container

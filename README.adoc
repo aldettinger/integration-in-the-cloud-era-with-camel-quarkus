@@ -4,49 +4,56 @@
 
 [source,shell]
 ----
-# Provision "OpenShift 4 Serverless Foundations Lab" cluster
-
-# Login
+# Provision "OpenShift 4 Serverless Foundations Lab" cluster and login, for instance:
 oc login https://api.cluster-4098.4098.sandbox1083.opentlc.com:6443
 
+# Create knative-serving namespace
+oc create namespace knative-serving
 
 # Install OpenShift ServerLess Operator from the UI (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-openshift-serverless.html)
 + Operators/Operator Hub/Fitler (OpenShift ServerLess)
-+ Click Install / Install
-+ Click view operator / KNative Serving / Create Instance/YAML view
-+ Set namespace to knative-serving
++ Click Install / Subscribe
++ Click "Installed Operators" / "OpenShift Serverless" / "KNative Serving - Create Instance "
++ In the YAML view, set namespace to knative-serving
 + Click create
-+ oc get pods -n knative-serving (wait all pods to be ready)
-
-# Clone the git demo project locally
-cd camel-quarkus-demo
-git clone https://github.com/aldettinger/getting-further-with-camel-on-quarkus.git getting-further-with-camel-on-quarkus
++ watch oc get pods -n knative-serving (wait all pods to be ready)
 
 # Deploy jvm and native projects to the cluster
-cd hello-cq-knative-native-mode
-mvnu clean package -Dquarkus.kubernetes.deploy=true
+cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus
+mvn clean package -Dquarkus.kubernetes.deploy=true
 
-# Check the services are available
-http http://hello-cq-knative-native-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-native-mode <<< '{room : {temperature : 40}}'
-http http://hello-cq-knative-jvm-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-jvm-mode <<< '{room : {temperature : 40}}'
+# Finalize the configuration
+oc apply -f openshift-configs/limit-range.yaml
+kn ksvc update hello-cq-knative-jvm-mode --request memory=600Mi
+kn ksvc update bye-cq-knative-jvm-mode --request memory=600Mi
+kn ksvc update hello-cq-knative-native-mode --request memory=50Mi
+kn ksvc update bye-cq-knative-native-mode --request memory=50Mi
+oc apply -f openshift-configs/mem-quota.yaml
 
-# Open terminator
-rm -fr ~/dev/demos/camel-quarkus-demo/my-quarkus-project/
-rm ~/dev/demos/camel-quarkus-demo/file.pdf
-cd ~/dev/demos/camel-quarkus-demo/
-# Split window horizontally
-# Tune the zoom (CTRL + scroll 10x)
-# Prepare the 'mvnu io.quarkus:quarkus-maven-plugin:1.8.1.Final:create' in top shell
-# Prepare 'ps -o rss,cmd $(pgrep -f my-q)' in bottom shell
-# Prepare 'watch http :8080/hello' in bottom shell
+# Check that mem requests were applied
+oc get ksvc hello-cq-knative-jvm-mode -o json | grep request -A 1
+oc get ksvc hello-cq-knative-native-mode -o json | grep request -A 1
+oc get ksvc bye-cq-knative-jvm-mode -o json | grep request -A 1
+oc get ksvc bye-cq-knative-native-mode -o json | grep request -A 1
+
+# Check the knative version (expected 0.16.0)
+oc get namespace knative-serving -o 'go-template={{index .metadata.labels "serving.knative.dev/release"}}'
+
+# Tune the autoscaler (mainly narrowing down the stable window)
+oc apply -f openshift-configs/knative-autoscaler-config.yaml
+
+# Open terminator and configure for demo
+cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus
+# Split window horizontally, and run below command in each shell
+. openshift-configs/before-running-demo.sh
+
+# Tune the zoom (CTRL + scroll 9x)
+# Prepare the watch command in bottom shell
+watch "oc describe quota mem-quota && echo '' && oc get pods | grep -v build"
 # Zoom in eclipse editor (CTRL/SHIFT/+ 5 times so that we have ~70 chars per line)
-# In eclipse, delete 'my-quarkus-project' from eclipse if any
-# Prepare the import of the project in eclipse
-# Prepare the slides to be shown when native compilation is running
-# Put the printed demo plan behind the main screen
 # Configure audio input/output to headset
 # Copy paste tiny urls so that we can send it very early
-# Configure display on a single screen for Apache CON @Home (conf system offer "all screen", "single window" or "chrome tab")
+# Configure display on a single screen (like for Apache CON @Home & JavaLand)
 
 ----
 
@@ -239,6 +246,8 @@ TODO: https://camel.apache.org/camel-quarkus/latest/user-guide/bootstrap.html#_c
    Specify xml route path: camel.main.xml-routes = routes/routes.xml
    Spefify rest dsl: camel.main.xml-rests = rests/rests.xml,
    Route templates ?
+   configure camel via microprofile env var config source ?
+   https://github.com/eclipse/microprofile-config/blob/master/spec/src/main/asciidoc/configsources.asciidoc#environment-variables-mapping-rules
 
 TODO: Maybe add code completion in the demo ?
     https://marketplace.visualstudio.com/items?itemName=redhat.vscode-apache-camel (VS code CQ code completion)
@@ -254,18 +263,17 @@ Events could be anything, I just need two events that are mandatory occurring wi
 The example should be built on the fact that eventA and eventB don't need to occur at the same moment in any circumstances.
 
 TODO: It could be better if the demo include the communication of something very old with something very new.
+Or something very low level tcp in airplane, communicated with something very high level (an airport service deployed in kubernetes ?)
 
-And then push a burst (the 10k commands seems to ruin the server):
-hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-native-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-native-mode
-It takes total = 20s with 98% of requests returning HTTP 200 and we scale up to 8/10 deployments
+Find below how to show resources consumption for containers:
+watch oc exec hello-cq-knative-native-mode-lswdr-3-deployment-fc89bdd8-9jlc5 cat /sys/fs/cgroup/memory/memory.usage_in_bytes
+ 50999808 ( 48.64 MiB) in native
+613645120 (585.22 MiB) in jvm
+To get the sidecar usage, you need to add "-c queue-proxy"
+watch oc exec hello-cq-knative-native-mode-yylnv-3-deployment-7fdd977b8f2x2bx -c queue-proxy cat /sys/fs/cgroup/memory/memory.usage_in_bytes
 
-hey -n 1000 -c 500 -m POST -d '{room : {temperature : 40}}' http://hello-cq-knative-jvm-mode-default.apps.cluster-4098.4098.sandbox1083.opentlc.com/hello-camel-quarkus-jvm-mode
-And it takes onlys 6s !!!!!!!
-
-with the command below:
-watch 'oc get pods | grep deployment'
-We are able to see the burst answer by more pods
+OpenShift Serverless tuning:
+The total size requirements to run OpenShift Serverless are dependent on the applications deployed. By default, each pod requests ~400m of CPU, so the minimum requirements are based on this value.
 
 Follow up on Knative tutorial:
 https://www.openshift.com/blog/knative-serving-your-serverless-services?extIdCarryOver=true&sc_cid=701f2000001OH7TAAW
-----

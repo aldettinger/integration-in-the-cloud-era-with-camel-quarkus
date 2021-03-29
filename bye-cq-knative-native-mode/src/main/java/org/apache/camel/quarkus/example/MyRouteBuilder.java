@@ -17,7 +17,7 @@ public class MyRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() {
-        from("platform-http:/hello-camel-quarkus-jvm-mode").setBody(simple("Hello Camel Quarkus in JVM mode"));
+        from("platform-http:/bye-camel-quarkus-native-mode").setBody(simple("Bye Camel Quarkus in NATIVE mode"));
     }
 
 }

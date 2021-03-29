@@ -1,0 +1,8 @@
+# Putting a limit to the sum of all container memory requests in the default namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: mem-quota
+spec:
+  hard:
+    requests.memory: 1200Mi 

@@ -62,8 +62,8 @@ http localhost:8080/steps
 mvn quarkus:dev
 # Tune the zoom in each shell (CTRL + scroll as necessary)
 
+# In eclipse Open rest-to-nats-demo/rests.xml,Step2Bean,StepsRouteTest,Configurations,application.properties
 # In eclipse Open by-cq-knative-jvm-mode/MyRoutBuilder.java
-# In eclipse Open rest-to-nats-demo/rests.xml,Configurations,Step2Bean,StepsRouteTest,application.properties
 # In openshift console, prepare Serverless/Services with namespace default (we should see the 4 knative services)
 # Zoom in eclipse editor (CTRL/SHIFT/+ 5 times so that we have ~70 chars per line)
 # Configure audio input/output to headset

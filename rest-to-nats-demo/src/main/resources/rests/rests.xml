@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rests xmlns="http://camel.apache.org/schema/spring">
+    <rest id="step-service" path="/">
+        <get uri="/steps">
+            <route id="rest-route">
+                <setBody><constant>STEP 1</constant></setBody>
+                <!-- to uri="bean:step2Bean"/ -->
+                <!-- to uri="log:test"/ -->
+                <!-- inOnly uri="nats:topic?sslContextParameters=#ssl&amp;secure=true"/-->
+            </route>
+        </get>
+    </rest>
+</rests>

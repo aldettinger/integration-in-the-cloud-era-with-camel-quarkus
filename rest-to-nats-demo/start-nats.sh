@@ -1,0 +1,1 @@
+docker run -it -v "$(pwd)"/src/test/resources:/conf:ro -p 4222:4222 nats:2.1.9 --config /conf/tls.conf --tls --tlscert=/conf/server.pem --tlskey=/conf/key.pem --tlsverify --tlscacert=/conf/ca.pem --debug --trace

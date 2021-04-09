@@ -92,11 +92,6 @@ mvn quarkus:dev
 # Quarkus = Tailors Java applications for GraalVM and JDK HotSpot (fast startup, low memory and developer joy)
 # Quarkus = JVM mode simple and already doing well vs native mode a bit harder and a step further with Ahead Of Time compilation
 
-# Pre-requisistes (do I really show pre-requisites ?)
-java --version
-mvn --version
-native-image --version (gcc, glibc, zlib)
-
 # Show the rest DSL, the xml file referenced from the application.properties
 # Invoke the service from the middle shell output "STEP 1"
 http localhost:8080/steps
@@ -138,8 +133,10 @@ target/rest-to-nats-demo-1.0.0-SNAPSHOT-runner
 # Speech: Show a knative service in eclipse, mention kubernetes extension
 # Speech: OpenShift cluster = kubernetes with goodies
 # Speech: Goodies like serverless tab => 4 services in default namespace
-# Speech: knative scale to zero, hello-jvm => scale to one, 6s for first request
-# Speech: knative scale to zero, hello-jvm => scale to one, 6s for first request
+# Speech: bottom shell, quota expand later, and no pods => knative scales to zero
+
+hello-jvm
+# On demand provisioning, first request served in 6s
 
 hello-native
 # Speech: We save the 3s from the static initializer, so we have seen the boot time effect
@@ -156,7 +153,6 @@ hello-native
 # Speech: Camel is able to reach bean in the CDI registry
 # Speech: Extra concerns in native mode, @RegisterForReflection, include resources
 # Speech: We have seen an illustration of boot time and memory effects in an environment with on demand short lived containers
-# Speech: Quarkus is doing better than traditional Java stacks, but we can go one step further in native
 #
 # Speech: In a nutshell, it's all about lightweight pattern based integrations running in the cloud
 # Speech: Thanks all, time for question, feel free to reach out to the community
@@ -169,32 +165,15 @@ Does quarkus really improve disk size in jvm mode only ? integrate an unused cla
 It does, when quarkus remove beans, we still have .class file but not files like _Bean.class, _ClientProxy.class
 
 An interest of fast startup is that it improve disposability (help to scale, move process to another node...)
-cloud provider portability => need kubernetes to abstract cloud specific services like object bucket storage => then we still need a framework to use those services => Quarkus
+Cloud provider portability => need kubernetes to abstract cloud specific services like object bucket storage => then we still need a framework to use those services => Quarkus
 Quarkus streamlines the registration process by detecting and auto-registering as many of your code’s reflection candidates as possible (interest of quarkus on top of graalvm)
 JVM mode is simpler, going native could introduce additional steps (eg add some dependencies to indexer)
 Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020/04/24/ramp-up-on-quarkus-a-kubernetes-native-java-framework/)
 One size does not fit all! Quarkus gives you the option to scale up in JVM mode if you need a single instance with a larger heap, or scale out in Native mode if you need more, lighter-weight instances
 
-TODO: Show XML dsl ? show rest dsl ? Mock inject bean (so we need a test)
-TODO: Maybe start with a non arc RouteBuilder, then say oh I need a bean, or whatnot, so add @ApplicationScoped on the route.
-      And actually, is there any scenarios where we would take the boot time penalty of using @ApplicationScoped route ?
-
-rest => bean => log => nats
-
-@TODO:
-start with rest dsl
-add a bean, and reference it from xml dsl
-add a log component and customize it via java code (like in https://camel.apache.org/camel-quarkus/latest/user-guide/bootstrap.html)
-add nats (show native resources inclusion of certificates
-mock inject the bean in a test (does it work with xml dsl ?)
-tune nats components from properties
-
-TODO: https://camel.apache.org/camel-quarkus/latest/user-guide/bootstrap.html#_camel_main 
-   Use functionalities from camel-quarkus-main
-   configure component by properties camel.component.log.exchange-formatter =  ***
-   use convention like, a single ExchangeFormatter instance in the CDI container, then it will automatically wire that bean to the LogComponent
-   Specify xml route path: camel.main.xml-routes = routes/routes.xml
-   Spefify rest dsl: camel.main.xml-rests = rests/rests.xml,
+@TODO: Find which extension is embedding the rests.xml file in the native executable
+@TODO: Find a way to have dev mode reloaded each time rests.xml is modified
+@TODO: Tune the memory limits (they might use less that 650Mi / 50Mi ?)
 
 Find below how to show resources consumption for containers:
 watch oc exec hello-cq-knative-native-mode-lswdr-3-deployment-fc89bdd8-9jlc5 cat /sys/fs/cgroup/memory/memory.usage_in_bytes

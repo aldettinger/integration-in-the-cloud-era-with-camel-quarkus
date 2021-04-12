@@ -96,14 +96,14 @@ mvn quarkus:dev
 # Invoke the service from the middle shell output "STEP 1"
 http localhost:8080/steps
 
-# Uncomment bean in rests.xml and @Named on Step2Bean
+# Uncomment bean in rests.xml
 # Invoke the service from the middle shell output "STEP 1 - STEP 2"
 http localhost:8080/steps
 
 # Show in StepsRouteTest how to override the bean in a test
 # Run the JUnit test from eclipse
 
-# Uncomment log in rests.xml and comment @Named on Configurations.log()
+# Uncomment log in rests.xml
 # Invoke the service from the middle shell output logs with MEP and body type
 http localhost:8080/steps
 

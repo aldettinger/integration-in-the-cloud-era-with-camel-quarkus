@@ -14,7 +14,7 @@ import org.apache.camel.support.processor.DefaultExchangeFormatter;
 @ApplicationScoped
 public class Configurations {
 
-    @Named
+    //@Named
     LogComponent log() {
         DefaultExchangeFormatter formatter = new DefaultExchangeFormatter();
         formatter.setShowExchangePattern(false);
@@ -26,7 +26,7 @@ public class Configurations {
         return component;
     }
 
-    //@Named
+    @Named
     SSLContextParameters ssl() {
         SSLContextParameters sslContextParameters = new SSLContextParameters();
 

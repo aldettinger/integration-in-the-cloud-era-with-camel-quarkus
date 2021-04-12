@@ -8,7 +8,7 @@ import org.jboss.logging.Logger;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @ApplicationScoped
-//@Named("step2Bean")
+@Named("step2Bean")
 @RegisterForReflection
 public class Step2Bean {
 

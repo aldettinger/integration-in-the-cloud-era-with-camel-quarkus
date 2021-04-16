@@ -16,32 +16,15 @@ oc create namespace knative-serving
 + Click "Installed Operators" / "OpenShift Serverless" / "KNative Serving - Create Instance "
 + In the YAML view, set namespace to knative-serving
 + Click create
-+ watch oc get pods -n knative-serving (wait all pods to be ready)
++ watch oc get pods -n knative-serving (wait all pods to be Running/Completed)
 
 # Deploy jvm and native projects to the cluster
 upstream
 cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus
 mvn clean package -Dquarkus.kubernetes.deploy=true
 
-# Finalize the configuration
-oc apply -f openshift-configs/limit-range.yaml
-kn ksvc update hello-cq-knative-jvm-mode --request memory=600Mi
-kn ksvc update bye-cq-knative-jvm-mode --request memory=600Mi
-kn ksvc update hello-cq-knative-native-mode --request memory=50Mi
-kn ksvc update bye-cq-knative-native-mode --request memory=50Mi
-oc apply -f openshift-configs/mem-quota.yaml
-
-# Check that mem requests were applied
-oc get ksvc hello-cq-knative-jvm-mode -o json | grep request -A 1
-oc get ksvc hello-cq-knative-native-mode -o json | grep request -A 1
-oc get ksvc bye-cq-knative-jvm-mode -o json | grep request -A 1
-oc get ksvc bye-cq-knative-native-mode -o json | grep request -A 1
-
-# Check the knative version (expected 0.16.0)
-oc get namespace knative-serving -o 'go-template={{index .metadata.labels "serving.knative.dev/release"}}'
-
-# Tune the autoscaler (mainly narrowing down the stable window)
-oc apply -f openshift-configs/knative-autoscaler-config.yaml
+# Finalize openshift configuration
+./openshift-configs/installing-demo.sh
 
 # Open terminator and configure for knative demo
 cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus
@@ -59,7 +42,7 @@ upstream
 # Then run each command below in its own shell
 ./start-nats.sh
 http localhost:8080/steps
-mvn quarkus:dev
+mvn quarkus:dev (can kill it before demo)
 # Tune the zoom in each shell (CTRL + scroll as necessary)
 
 # In eclipse Open rest-to-nats-demo/rests.xml,Step2Bean,StepsRouteTest,Configurations,application.properties
@@ -76,23 +59,14 @@ mvn quarkus:dev
 
 [source,shell]
 ----
-# Speech: Welcome to this session about Getting further with Camel on Quarkus
-# Speech: Senior Software Engineer at Red Hat, Camel contributor
-# Speech: A short reminder about Camel and Quarkus
-# Speech: Then showing camel-quarkus tips with a local project
-# speech: Finally illustrating a situation where native mode shine with knative
-
-# Speech: Ask attendees to switch the content presentation to full screen if any
 # Take care of possible lags = audio/video shift, it's worth waiting few seconds so that everyone could see commands output
-
 # Copy paste tiny urls in browser if any
 
-# Speech: reminder with slides
-# Camel = Consume from 300+ framework/techno => apply proven integration recipes with dsl => produces to 300+ framework/techno
-# Quarkus = Tailors Java applications for GraalVM and JDK HotSpot (fast startup, low memory and developer joy)
-# Quarkus = JVM mode simple and already doing well vs native mode a bit harder and a step further with Ahead Of Time compilation
+# Speech: Slides about Presenter, Plan, Camel Reminder, Quarkus reminder
 
 # Show the rest DSL, the xml file referenced from the application.properties
+# In a first shell
+mvn quarkus:dev
 # Invoke the service from the middle shell output "STEP 1"
 http localhost:8080/steps
 
@@ -119,17 +93,17 @@ http localhost:8080/steps
 
 # Now let's try in native mode
 mvn clean package -P native
-# Pave the 3 minutes with slides, or explain why @RegisterForReflection is needed
-# Recap on native, instant boot time, tiny memory, static code analysis, closed world assumption
+# Speech: Pave the 3 minutes with the slide comparing JVM vs native
+# Speech: Mention that quarkus is already doing fine in JVM
+
 target/rest-to-nats-demo-1.0.0-SNAPSHOT-runner
 # Oops not running, we need to explicitly embed some resources
 # So uncomment 'quarkus.camel.native.resources.include-patterns' in application.properties
 mvn clean package -P native
-# Explain closed world
-# Explain that the rests.xml file is automatically included by the quarkus-XXX extension (@TODO: is it core ? or xml-io ?)
+# Speech: Pave the 3 minutes with slides Native mode (how great), Native mode (how complex)
 target/rest-to-nats-demo-1.0.0-SNAPSHOT-runner
 
-# Move the knative terminator and present the environment
+# Move to knative terminator and present the environment
 # Speech: Show a knative service in eclipse, mention kubernetes extension
 # Speech: OpenShift cluster = kubernetes with goodies
 # Speech: Goodies like serverless tab => 4 services in default namespace
@@ -144,18 +118,7 @@ hello-native
 # Speech: Explain mem quota, then hello-jvm, at 30s launch bye-jvm, oh needs to wait (it's either delay or dollar)
 # Speech: hello-native, bye-native => we have a better densification
 
-# Speech: CONCLUSION
-# Speech: I hope that you now have a better idea of HOW camel-quarkus could be used
-# Speech: Not only Java, we have seen rest dsl used in xml
-# Speech: We can invoke bean and mock them for tests
-# Speech: We can programmatically tune camel components with the help of CDI
-# Speech: We can configure camel components from application.properties
-# Speech: Camel is able to reach bean in the CDI registry
-# Speech: Extra concerns in native mode, @RegisterForReflection, include resources
-# Speech: We have seen an illustration of boot time and memory effects in an environment with on demand short lived containers
-#
-# Speech: In a nutshell, it's all about lightweight pattern based integrations running in the cloud
-# Speech: Thanks all, time for question, feel free to reach out to the community
+# Speech: Slides about conclusion, it's all about, thanks
 
 ----------------------------------------------------------------------------------------------------------------------
 
@@ -174,6 +137,12 @@ One size does not fit all! Quarkus gives you the option to scale up in JVM mode 
 @TODO: Find which extension is embedding the rests.xml file in the native executable
 @TODO: Find a way to have dev mode reloaded each time rests.xml is modified
 @TODO: Tune the memory limits (they might use less that 650Mi / 50Mi ?)
+@TODO: The demo is too much native oriented while JVM is already doing fine (need to balance)
+@TODO: Use properties in the code ? @ConfigProperty ?
+@TODO: @Inject CamelContext in user code (for instance, to check a status, or surface an information from the camel context to end users)
+@TODO: Use of @org.apache.camel.quarkus.core.events.ComponentAddEvent like in bootstrap doc
+@TODO: Use fluent dsl
+@TODO: Show content assist as explained in first-step.adoc
 
 Find below how to show resources consumption for containers:
 watch oc exec hello-cq-knative-native-mode-lswdr-3-deployment-fc89bdd8-9jlc5 cat /sys/fs/cgroup/memory/memory.usage_in_bytes

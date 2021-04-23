@@ -53,6 +53,8 @@ mvn quarkus:dev (can kill it before demo)
 # Copy paste tiny urls so that we can send it very early
 # Configure display on a single screen (like for Apache CON @Home & JavaLand)
 
+# Open slides ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus/Getting\ Further\ With\ Camel\ Quarkus.odp
+
 ----
 
 == How to Run the Demo
@@ -60,7 +62,12 @@ mvn quarkus:dev (can kill it before demo)
 [source,shell]
 ----
 # Take care of possible lags = audio/video shift, it's worth waiting few seconds so that everyone could see commands output
-# Copy paste tiny urls in browser if any
+# Copy paste tiny urls in chat/browser/presentation system
+https://tinyurl.com/vpyfr9xb (Camel Quarkus website)
+https://tinyurl.com/wpa7wvp9 (Quarkus website)
+https://tinyurl.com/2cm7886s (Building a native executable)
+https://tinyurl.com/38yyrx84 (GraalVM Native Image)
+https://tinyurl.com/7hruukyd (Demo with sources on github)
 
 # Speech: Slides about Presenter, Plan, Camel Reminder, Quarkus reminder
 

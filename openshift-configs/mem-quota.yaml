@@ -5,4 +5,4 @@ metadata:
   name: mem-quota
 spec:
   hard:
-    requests.memory: 1200Mi 
+    requests.memory: 500Mi 

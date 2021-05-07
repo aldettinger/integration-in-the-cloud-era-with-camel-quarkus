@@ -1,7 +1,7 @@
 # Finalize the configuration
 oc apply -f openshift-configs/limit-range.yaml
-kn ksvc update hello-cq-knative-jvm-mode --request memory=600Mi
-kn ksvc update bye-cq-knative-jvm-mode --request memory=600Mi
+kn ksvc update hello-cq-knative-jvm-mode --request memory=250Mi
+kn ksvc update bye-cq-knative-jvm-mode --request memory=250Mi
 kn ksvc update hello-cq-knative-native-mode --request memory=50Mi
 kn ksvc update bye-cq-knative-native-mode --request memory=50Mi
 oc apply -f openshift-configs/mem-quota.yaml

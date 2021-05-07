@@ -54,6 +54,7 @@ mvn quarkus:dev (can kill it before demo)
 # Configure display on a single screen (like for Apache CON @Home & JavaLand)
 
 # Open slides ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus/Getting\ Further\ With\ Camel\ Quarkus.odp
+# in workspace 2: CTRL+ALT+DOWN/UP to change workspace
 
 ----
 
@@ -94,7 +95,7 @@ http localhost:8080/steps
 
 # Uncomment the nats line in rests.xml, and uncomment @Named on ssl() in Configurations
 # quarkus:dev can't start
-# uncomment nats.servers line in application.properties (camel component tuning via properties)
+# Uncomment nats.servers line in application.properties (camel component tuning via properties)
 # Invoke, and show the logs from nats server
 http localhost:8080/steps
 
@@ -102,6 +103,7 @@ http localhost:8080/steps
 mvn clean package -P native
 # Speech: Pave the 3 minutes with the slide comparing JVM vs native
 # Speech: Mention that quarkus is already doing fine in JVM
+# Speech: Mention that the 3s long configuration is done at build time
 
 target/rest-to-nats-demo-1.0.0-SNAPSHOT-runner
 # Oops not running, we need to explicitly embed some resources
@@ -117,7 +119,7 @@ target/rest-to-nats-demo-1.0.0-SNAPSHOT-runner
 # Speech: bottom shell, quota expand later, and no pods => knative scales to zero
 
 hello-jvm
-# On demand provisioning, first request served in 6s
+# On demand provisioning, first request served in ~6s
 
 hello-native
 # Speech: We save the 3s from the static initializer, so we have seen the boot time effect
@@ -141,10 +143,7 @@ JVM mode is simpler, going native could introduce additional steps (eg add some 
 Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020/04/24/ramp-up-on-quarkus-a-kubernetes-native-java-framework/)
 One size does not fit all! Quarkus gives you the option to scale up in JVM mode if you need a single instance with a larger heap, or scale out in Native mode if you need more, lighter-weight instances
 
-@TODO: Find which extension is embedding the rests.xml file in the native executable
-@TODO: Find a way to have dev mode reloaded each time rests.xml is modified
-@TODO: Tune the memory limits (they might use less that 650Mi / 50Mi ?)
-@TODO: The demo is too much native oriented while JVM is already doing fine (need to balance)
+@TODO: Find a way to have dev mode reloaded each time rests.xml is modified => should be fixed soon in cq 1.9.0
 @TODO: Use properties in the code ? @ConfigProperty ?
 @TODO: @Inject CamelContext in user code (for instance, to check a status, or surface an information from the camel context to end users)
 @TODO: Use of @org.apache.camel.quarkus.core.events.ComponentAddEvent like in bootstrap doc

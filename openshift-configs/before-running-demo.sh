@@ -1,3 +1,29 @@
+# Check the knative version (expected 0.16.0)
+echo 'Printing knative version (demo has been validated with knative 0.16.0)'
+oc get namespace knative-serving -o 'go-template={{index .metadata.labels "serving.knative.dev/release"}}'
+echo
+
+# Tune the autoscaler (mainly narrowing down the stable window)
+KNATIVE_AUTOSCALER_CONFIG=$(cat <<'END_HEREDOC'
+apiVersion: v1
+data:
+  container-concurrency-target-default: "2"
+  container-concurrency-target-percentage: "0.7"
+  scale-to-zero-grace-period: 10s
+  scale-to-zero-pod-retention-period: 0s
+  stable-window: 10s
+kind: ConfigMap
+metadata:
+  annotations:
+  labels:
+    serving.knative.dev/release: v0.16.0
+  name: config-autoscaler
+  namespace: knative-serving
+END_HEREDOC
+)
+echo "${KNATIVE_AUTOSCALER_CONFIG}" | oc apply -f -
+echo 'Tuned the knative autoscaler stable window'
+
 # Configure the current shell for upstream development
 upstream
 

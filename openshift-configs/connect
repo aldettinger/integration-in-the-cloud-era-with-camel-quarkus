@@ -1,0 +1,11 @@
+CLUSTER_URL=''
+CLUSTER_PASSWORD=''
+
+if [ -z "${CLUSTER_URL}" ] || [ -z "${CLUSTER_PASSWORD}" ] ;
+then
+  echo "Please set CLUSTER_URL and CLUSTER_PASSWORD"
+  exit 1
+fi
+
+oc login ${CLUSTER_URL} --username admin --password ${CLUSTER_PASSWORD}
+echo $CLUSTER_PASSWORD | xsel -b

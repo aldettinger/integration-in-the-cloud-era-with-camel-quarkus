@@ -16,7 +16,7 @@ public class StepsRouteTest {
   Step2Bean step2Bean;
 
   @Test
-  void step2ShouldBeMock() {
+  void step2BeanShouldBeMocked() {
     when(step2Bean.step(anyString())).thenReturn("STEP 1 - mocked");
     given().get("/steps").then().statusCode(200).body(is("STEP 1 - mocked"));
   }

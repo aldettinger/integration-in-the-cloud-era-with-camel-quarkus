@@ -1,5 +1,5 @@
-CLUSTER_URL=''
-CLUSTER_PASSWORD=''
+# credentials.sh must define CLUSTER_URL and CLUSTER_URL
+source openshift-configs/credentials.sh
 
 if [ -z "${CLUSTER_URL}" ] || [ -z "${CLUSTER_PASSWORD}" ] ;
 then

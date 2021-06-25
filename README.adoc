@@ -12,7 +12,7 @@ openshift-configs/connect
 oc create namespace knative-serving
 
 # Install OpenShift ServerLess Operator from the UI (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-openshift-serverless.html)
-+ Operators/Operator Hub/Fitler (OpenShift ServerLess)
++ Operators/Operator Hub/Filter (OpenShift ServerLess)
 + Click Install / Subscribe
 + Click "Installed Operators" / "OpenShift Serverless" / "KNative Serving - Create Instance "
 + In the YAML view, set namespace to knative-serving
@@ -28,11 +28,11 @@ mvn clean package -Dquarkus.kubernetes.deploy=true
 
 # Open terminator and configure for knative demo
 cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus
-# Split window horizontally, and run below command in each shell
+# Split window horizontally, and run each command in its own shell
 . openshift-configs/before-running-demo.sh
-# Tune the zoom (CTRL + scroll 9x)
-# Prepare the watch command in bottom shell
 watch "oc describe quota mem-quota && echo '' && oc get pods | grep -v build"
+# Tune the zoom (CTRL + scroll 9x) in all shell
+
 
 # Open terminator and configure the local rest demo
 cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus/rest-to-nats-demo/
@@ -144,7 +144,7 @@ JVM mode is simpler, going native could introduce additional steps (eg add some 
 Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020/04/24/ramp-up-on-quarkus-a-kubernetes-native-java-framework/)
 One size does not fit all! Quarkus gives you the option to scale up in JVM mode if you need a single instance with a larger heap, or scale out in Native mode if you need more, lighter-weight instances
 
-@TODO: Better switch to quarkus 2 soon to match graalvm 21.1.0
+@TODO: Better switch to quarkus 2 soon to match graalvm 21.1.0 + migrate for instance resource.include-patterns
 @TODO: Fake the native compilation (it disturbs the demo, for instance it competes with resources from the conferencing system, could be slower)
 @TODO: Find a way to have dev mode reloaded each time rests.xml is modified => should be fixed when switching to quarkus 2
 @TODO:

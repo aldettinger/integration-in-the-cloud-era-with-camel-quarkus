@@ -7,5 +7,6 @@ then
   exit 1
 fi
 
+echo 'Login with username admin'
 oc login ${CLUSTER_URL} --username admin --password ${CLUSTER_PASSWORD}
 echo $CLUSTER_PASSWORD | xsel -b

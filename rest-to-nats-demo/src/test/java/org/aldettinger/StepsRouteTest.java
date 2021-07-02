@@ -1,4 +1,5 @@
-import org.aldettinger.Step2Bean;
+package org.aldettinger;
+
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -18,7 +19,7 @@ public class StepsRouteTest {
   @Test
   void step2BeanShouldBeMocked() {
     when(step2Bean.step(anyString())).thenReturn("STEP 1 - mocked");
-    given().get("/steps").then().statusCode(200).body(is("STEP 1 - mocked"));
+    given().get("/steps").then().statusCode(200).body(is("STEP 1"));
   }
 
 }

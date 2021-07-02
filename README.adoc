@@ -144,9 +144,8 @@ JVM mode is simpler, going native could introduce additional steps (eg add some 
 Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020/04/24/ramp-up-on-quarkus-a-kubernetes-native-java-framework/)
 One size does not fit all! Quarkus gives you the option to scale up in JVM mode if you need a single instance with a larger heap, or scale out in Native mode if you need more, lighter-weight instances
 
-@TODO: Better switch to quarkus 2 soon to match graalvm 21.1.0 + migrate for instance resource.include-patterns
+@TODO: Fix Step1Mocked ?
 @TODO: Fake the native compilation (it disturbs the demo, for instance it competes with resources from the conferencing system, could be slower)
-@TODO: Find a way to have dev mode reloaded each time rests.xml is modified => should be fixed when switching to quarkus 2
 @TODO:
 You are also welcome to pre record this demo, post it on youtube, and write a blog intro about  it, and post on camel website, and then for conferences you can have a longer talk
 and the video is handy to have for conf talks, as a pre reocrding you can play if live coding not possible

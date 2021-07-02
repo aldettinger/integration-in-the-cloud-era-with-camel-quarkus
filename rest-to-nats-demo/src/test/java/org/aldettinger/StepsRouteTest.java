@@ -19,7 +19,7 @@ public class StepsRouteTest {
   @Test
   void step2BeanShouldBeMocked() {
     when(step2Bean.step(anyString())).thenReturn("STEP 1 - mocked");
-    given().get("/steps").then().statusCode(200).body(is("STEP 1"));
+    given().get("/steps").then().statusCode(200).body(is("STEP 1 - mocked"));
   }
 
 }

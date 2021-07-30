@@ -154,7 +154,6 @@ and maybe apache con have a list of standby speakers
 TODO in another demo:
 @TODO: Use properties in the code ? @ConfigProperty ?
 @TODO: @Inject CamelContext in user code (for instance, to check a status, or surface an information from the camel context to end users)
-@TODO: Use of @org.apache.camel.quarkus.core.events.ComponentAddEvent like in bootstrap doc
 @TODO: Use fluent dsl
 @TODO: Show content assist as explained in first-step.adoc
 @TODO: Deploy on kubernetes, building with docker should be quicker than s2i

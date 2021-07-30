@@ -1,6 +1,7 @@
 package org.aldettinger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Named;
 
 import org.apache.camel.support.jsse.KeyManagersParameters;
@@ -9,23 +10,26 @@ import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.camel.support.jsse.TrustManagersParameters;
 
 import org.apache.camel.component.log.LogComponent;
+import org.apache.camel.quarkus.core.events.ComponentAddEvent;
 import org.apache.camel.support.processor.DefaultExchangeFormatter;
 
 @ApplicationScoped
 public class Configurations {
 
-    //@Named
-    LogComponent log() {
-        DefaultExchangeFormatter formatter = new DefaultExchangeFormatter();
-        formatter.setShowExchangePattern(false);
-        formatter.setShowBodyType(false);
+    // Customize a component created by camel-quarkus via an observer method
+    public void onComponentAdd(@Observes ComponentAddEvent event) {
+        if(event.getComponent() instanceof LogComponent) {
+            LogComponent logComponent = (LogComponent)event.getComponent();
 
-        LogComponent component = new LogComponent();
-        component.setExchangeFormatter(formatter);
+            DefaultExchangeFormatter formatter = new DefaultExchangeFormatter();
+            formatter.setShowExchangePattern(false);
+            formatter.setShowBodyType(false);
 
-        return component;
+            //logComponent.setExchangeFormatter(formatter);
+        }
     }
 
+    // Put a bean in the Camel/Quarkus registry via a producer method
     @Named
     SSLContextParameters ssl() {
         SSLContextParameters sslContextParameters = new SSLContextParameters();

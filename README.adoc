@@ -145,11 +145,6 @@ Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020
 One size does not fit all! Quarkus gives you the option to scale up in JVM mode if you need a single instance with a larger heap, or scale out in Native mode if you need more, lighter-weight instances
 
 @TODO: Fake the native compilation (it disturbs the demo, for instance it competes with resources from the conferencing system, could be slower)
-@TODO:
-You are also welcome to pre record this demo, post it on youtube, and write a blog intro about  it, and post on camel website, and then for conferences you can have a longer talk
-and the video is handy to have for conf talks, as a pre reocrding you can play if live coding not possible
-many virtual conf are also pre-recorded with only live QA
-and maybe apache con have a list of standby speakers
 
 TODO in another demo:
 @TODO: Use properties in the code ? @ConfigProperty ?
@@ -166,3 +161,6 @@ watch oc exec hello-cq-knative-native-mode-lswdr-3-deployment-fc89bdd8-9jlc5 cat
 613645120 (585.22 MiB) in jvm
 To get the sidecar usage, you need to add "-c queue-proxy"
 watch oc exec hello-cq-knative-native-mode-yylnv-3-deployment-7fdd977b8f2x2bx -c queue-proxy cat /sys/fs/cgroup/memory/memory.usage_in_bytes
+
+TIPS to create a gif file from images:
+ffmpeg -framerate 0.5 -pattern_type glob -i "Screenshot from 2021-05-07-15h-Getting Further With Camel on Quarkus.mkv - *.png" -s 960x540 demo.gif

@@ -147,6 +147,7 @@ One size does not fit all! Quarkus gives you the option to scale up in JVM mode 
 @TODO: Fake the native compilation (it disturbs the demo, for instance it competes with resources from the conferencing system, could be slower)
 
 TODO in another demo:
+@TODO: Demo with on-demand provisioning with ingress/egress aspect, consuming and produce from outside of the cluster in event-driven way
 @TODO: Use properties in the code ? @ConfigProperty ?
 @TODO: @Inject CamelContext in user code (for instance, to check a status, or surface an information from the camel context to end users)
 @TODO: Use fluent dsl

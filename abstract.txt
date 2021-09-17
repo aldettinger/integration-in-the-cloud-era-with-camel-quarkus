@@ -10,7 +10,3 @@ Presenter:
 Alexandre is an Apache Camel contributor, working mainly on camel-quarkus those days.
 He is also Senior Software Engineer at Red Hat.
 
-
-Conferences:
-Virtual Summit 2021, May 18-20, 2021, 20 min + 5min question
-

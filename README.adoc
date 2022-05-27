@@ -5,7 +5,7 @@
 [source,shell]
 ----
 # Provision "OpenShift 4 Serverless Foundations Lab" cluster and login, for instance:
-cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus
+cd ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus
 openshift-configs/connect
 
 # Create knative-serving namespace
@@ -27,7 +27,7 @@ mvn clean package -Dquarkus.kubernetes.deploy=true
 ./openshift-configs/installing-demo.sh
 
 # Open terminator and configure for knative demo
-cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus
+cd ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus
 # Split window horizontally, and run each command in its own shell
 . openshift-configs/before-running-demo.sh
 watch "oc describe quota mem-quota && echo '' && oc get pods | grep -v build"
@@ -35,7 +35,7 @@ watch "oc describe quota mem-quota && echo '' && oc get pods | grep -v build"
 
 
 # Open terminator and configure the local rest demo
-cd ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus/rest-to-nats-demo/
+cd ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus/rest-to-nats-demo/
 git checkout -- .
 # Split window horizontally, then horizontally, and run below command in each shell
 upstream
@@ -55,7 +55,7 @@ mvn quarkus:dev (can kill it before demo)
 # Configure display on a single screen (like for Apache CON @Home & JavaLand)
 
 # In workspace 2: CTRL+ALT+DOWN/UP to change workspace, Open slides:
-# ~/dev/demos/camel-quarkus-demo/getting-further-with-camel-on-quarkus/Getting\ Further\ With\ Camel\ Quarkus.odp
+# ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus/Integration\ In\ The\ Cloud\ Era\ With\ Camel\ Quarkus.odp
 
 ----
 
@@ -73,20 +73,20 @@ https://tinyurl.com/7hruukyd (Demo with sources on github)
 
 # Speech: Slides about Presenter, Plan, Camel Reminder, Quarkus reminder
 
-# Show the rest DSL, the xml file referenced from the application.properties
+# Show the rest DSL in Java
 # In a first shell
 mvn quarkus:dev
 # Invoke the service from the middle shell output "STEP 1"
 http localhost:8080/steps
 
-# Uncomment bean in rests.xml
+# Uncomment bean in route definition, mention the EndpointRouteBuilder syntax
 # Invoke the service from the middle shell output "STEP 1 - STEP 2"
 http localhost:8080/steps
 
 # Show in StepsRouteTest how to override the bean in a test
-# Run the JUnit test from eclipse
+# Run the JUnit test from quarkus:dev (by pressing 'r' in the quarkus:dev console)
 
-# Uncomment log in rests.xml
+# Uncomment log in route definition
 # Invoke the service from the middle shell output logs with MEP and body type
 http localhost:8080/steps
 
@@ -94,7 +94,7 @@ http localhost:8080/steps
 # Invoke the service from the middle shell output logs without MEP and body type
 http localhost:8080/steps
 
-# Uncomment the nats line in rests.xml, and uncomment @Named on ssl() in Configurations
+# Uncomment the nats line in route definition, notice that type safe endpoint dsl
 # quarkus:dev can't start
 # Uncomment nats.servers line in application.properties (camel component tuning via properties)
 # Invoke, and show the logs from nats server
@@ -133,28 +133,12 @@ hello-native
 ----------------------------------------------------------------------------------------------------------------------
 
 Raw notes for demo/improvements:
-Show quarkus live reload ? (update the dev and show result directly in the cluster)
-Does quarkus really improve disk size in jvm mode only ? integrate an unused class and check size for instance ?
-It does, when quarkus remove beans, we still have .class file but not files like _Bean.class, _ClientProxy.class
 
-An interest of fast startup is that it improve disposability (help to scale, move process to another node...)
-Cloud provider portability => need kubernetes to abstract cloud specific services like object bucket storage => then we still need a framework to use those services => Quarkus
-Quarkus streamlines the registration process by detecting and auto-registering as many of your code’s reflection candidates as possible (interest of quarkus on top of graalvm)
-JVM mode is simpler, going native could introduce additional steps (eg add some dependencies to indexer)
 Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020/04/24/ramp-up-on-quarkus-a-kubernetes-native-java-framework/)
-One size does not fit all! Quarkus gives you the option to scale up in JVM mode if you need a single instance with a larger heap, or scale out in Native mode if you need more, lighter-weight instances
 
 @TODO: Fake the native compilation (it disturbs the demo, for instance it competes with resources from the conferencing system, could be slower)
 
 TODO in another demo:
-@TODO: Demo with on-demand provisioning with ingress/egress aspect, consuming and produce from outside of the cluster in event-driven way
-@TODO: Use properties in the code ? @ConfigProperty ?
-@TODO: @Inject CamelContext in user code (for instance, to check a status, or surface an information from the camel context to end users)
-@TODO: Use fluent dsl
-@TODO: Show content assist as explained in first-step.adoc
-@TODO: Deploy on kubernetes, building with docker should be quicker than s2i
-quarkus.kubernetes.deploy=true only  applies yaml resources generated by the kubernetes extension so a container is always needed.
-So it's either, we do it with docker or either we use "container'jib and let the maven build create the image and put it in the registry.
 
 Find below how to show resources consumption for containers:
 watch oc exec hello-cq-knative-native-mode-lswdr-3-deployment-fc89bdd8-9jlc5 cat /sys/fs/cgroup/memory/memory.usage_in_bytes
@@ -166,7 +150,7 @@ watch oc exec hello-cq-knative-native-mode-yylnv-3-deployment-7fdd977b8f2x2bx -c
 TIPS to create a gif file from images:
 ffmpeg -framerate 0.5 -pattern_type glob -i "Screenshot from 2021-05-07-15h-Getting Further With Camel on Quarkus.mkv - *.png" -s 960x540 demo.gif
 
-Notes for J4K:
+Notes for Voxxed days Luxembourg:
 Have 2 projects opened (MyRouteBuilder.java + bye-cq-knative-native-mode)
 Have the install scripts opened: before-running-demo.sh, installing-demo.sh, limit-range.yaml, mem-quota.yaml
 Present the projects
@@ -180,3 +164,4 @@ Present the install scripts:
   Defining a default value of 50Mi via the limitRange (so that knative queue-proxy sidecar containers requests 50Mi)
   The memory-quota set to 500Mi, so that the sum of memory request from all containers can't exceed this value
 And then proceed with the demo (show knative services in openshift and then go to the shell)
+

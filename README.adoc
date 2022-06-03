@@ -5,7 +5,7 @@
 [source,shell]
 ----
 # Provision "OpenShift 4 Serverless Foundations Lab" cluster and login, for instance:
-cd ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus
+cd ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus
 openshift-configs/connect
 
 # Create knative-serving namespace
@@ -20,14 +20,14 @@ oc create namespace knative-serving
 + watch oc get pods -n knative-serving (wait all pods to be Running/Completed)
 
 # Deploy jvm and native projects to the cluster
-upstream
+main_upstream
 mvn clean package -Dquarkus.kubernetes.deploy=true
 
 # Finalize openshift configuration
 ./openshift-configs/installing-demo.sh
 
 # Open terminator and configure for knative demo
-cd ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus
+cd ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus
 # Split window horizontally, and run each command in its own shell
 . openshift-configs/before-running-demo.sh
 watch "oc describe quota mem-quota && echo '' && oc get pods | grep -v build"
@@ -35,27 +35,27 @@ watch "oc describe quota mem-quota && echo '' && oc get pods | grep -v build"
 
 
 # Open terminator and configure the local rest demo
-cd ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus/rest-to-nats-demo/
+cd ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus/rest-to-nats-demo/
 git checkout -- .
 # Split window horizontally, then horizontally, and run below command in each shell
-upstream
+main_upstream
 # Then run each command below in its own shell
 ./start-nats.sh
 http localhost:8080/steps
 mvn quarkus:dev (can kill it before demo)
 # Tune the zoom in each shell (CTRL + scroll as necessary)
 
-# In eclipse Open rest-to-nats-demo/rests.xml,Step2Bean,StepsRouteTest,Configurations,application.properties
+# In eclipse Open rest-to-nats-demo/CamelRoutes,Step2Bean,StepsRouteTest,Configurations,application.properties
 # In eclipse Open by-cq-knative-jvm-mode/MyRoutBuilder.java
 # Execute StepsRouteTest Junit test once, at this stage it should fail with ACTUAL="STEP 1"
-# Zoom in eclipse editor (CTRL/SHIFT/+ 5 times so that we have ~70 chars per line)
+# Zoom in eclipse editor (CTRL/SHIFT/+ 5 times so that we have ~85 chars per line)
 # In openshift console, prepare Serverless/Services with namespace default (we should see the 4 knative services)
 # Configure audio input/output to headset
 # Copy paste tiny urls so that we can send it very early
 # Configure display on a single screen (like for Apache CON @Home & JavaLand)
 
 # In workspace 2: CTRL+ALT+DOWN/UP to change workspace, Open slides:
-# ~/dev/demos/camel-quarkus-demo/integration-in-the-cloud-era-with-camel-quarkus/Integration\ In\ The\ Cloud\ Era\ With\ Camel\ Quarkus.odp
+# ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus/Integration\ In\ The\ Cloud\ Era\ With\ Camel\ Quarkus.odp
 
 ----
 

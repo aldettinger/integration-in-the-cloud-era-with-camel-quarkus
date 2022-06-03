@@ -25,7 +25,7 @@ echo "${KNATIVE_AUTOSCALER_CONFIG}" | oc apply -f -
 echo 'Tuned the knative autoscaler stable window'
 
 # Configure the current shell for upstream development
-upstream
+main_upstream
 
 # Init the environment variables porting interesting urls
 export HELLO_JVM_URL=$(kn service list -o json | jq -r '.items[] | select(.metadata.name == "hello-cq-knative-jvm-mode") | .status.url')

@@ -149,19 +149,3 @@ watch oc exec hello-cq-knative-native-mode-yylnv-3-deployment-7fdd977b8f2x2bx -c
 
 TIPS to create a gif file from images:
 ffmpeg -framerate 0.5 -pattern_type glob -i "Screenshot from 2021-05-07-15h-Getting Further With Camel on Quarkus.mkv - *.png" -s 960x540 demo.gif
-
-Notes for Voxxed days Luxembourg:
-Have 2 projects opened (MyRouteBuilder.java + bye-cq-knative-native-mode)
-Have the install scripts opened: before-running-demo.sh, installing-demo.sh, limit-range.yaml, mem-quota.yaml
-Present the projects
-  Simple hello-world, platform-http, hello/bye in jvm/native => knative services
-  2 Deployment mode (JVM = fast jar, native = executable)
-  Quarkus offers extensions to deploy on kubernetes and openshift
-  The pom.xml file for the native mode has one more property (<quarkus.package.type>native</quarkus.package.type>)
-Present the install scripts:
-  Tuned knative stable window to 10s via ConfigMap, get knative services url and create alias
-  Memory requests estimated by experimentation (250Mi in JVM mode and 50Mi in native mode)
-  Defining a default value of 50Mi via the limitRange (so that knative queue-proxy sidecar containers requests 50Mi)
-  The memory-quota set to 500Mi, so that the sum of memory request from all containers can't exceed this value
-And then proceed with the demo (show knative services in openshift and then go to the shell)
-

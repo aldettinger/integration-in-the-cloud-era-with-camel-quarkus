@@ -1,7 +1,7 @@
 package org.aldettinger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
 import org.jboss.logging.Logger;
 

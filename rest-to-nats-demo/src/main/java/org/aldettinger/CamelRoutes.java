@@ -1,7 +1,7 @@
 package org.aldettinger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
 import org.apache.camel.support.jsse.SSLContextParameters;

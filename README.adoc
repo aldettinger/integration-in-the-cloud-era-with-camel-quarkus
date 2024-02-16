@@ -136,6 +136,7 @@ Raw notes for demo/improvements:
 
 Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020/04/24/ramp-up-on-quarkus-a-kubernetes-native-java-framework/)
 
+@TODO: Migrate to newer nats image
 @TODO: Fake the native compilation (it disturbs the demo, for instance it competes with resources from the conferencing system, could be slower)
 
 TODO in another demo:

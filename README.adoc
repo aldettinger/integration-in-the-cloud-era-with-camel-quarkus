@@ -101,7 +101,7 @@ http localhost:8080/steps
 http localhost:8080/steps
 
 # Now let's try in native mode
-mvn clean package -P native
+mvn clean package -D native
 # Speech: Pave the 3 minutes with the slide comparing JVM vs native
 # Speech: Mention that quarkus is already doing fine in JVM
 # Speech: Mention that the 3s long configuration is done at build time
@@ -109,7 +109,7 @@ mvn clean package -P native
 target/rest-to-nats-demo-1.0.0-SNAPSHOT-runner
 # Oops not running, we need to explicitly embed some resources
 # So uncomment 'quarkus.camel.native.resources.include-patterns' in application.properties
-mvn clean package -P native
+mvn clean package -D native
 # Speech: Pave the 3 minutes with slides Native mode (how great), Native mode (how complex)
 target/rest-to-nats-demo-1.0.0-SNAPSHOT-runner
 

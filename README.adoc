@@ -90,7 +90,7 @@ http localhost:8080/steps
 # Invoke the service from the middle shell output logs with MEP and body type
 http localhost:8080/steps
 
-# Uncomment @Named on Configurations.log() (camel component tuning via java code)
+# Uncomment `logComponent.setExchangeFormatter(formatter);` in `Configurations.onComponentAdd` method (camel component tuning via java code)
 # Invoke the service from the middle shell output logs without MEP and body type
 http localhost:8080/steps
 
@@ -102,7 +102,7 @@ http localhost:8080/steps
 
 # Now let's try in native mode
 mvn clean package -D native
-# Speech: Pave the 3 minutes with the slide comparing JVM vs native
+# Speech: Pave the 1 minutes with the slide comparing JVM vs native
 # Speech: Mention that quarkus is already doing fine in JVM
 # Speech: Mention that the 3s long configuration is done at build time
 

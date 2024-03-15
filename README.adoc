@@ -25,7 +25,7 @@ mvn quarkus:dev (can kill it before demo)
 # Copy paste tiny urls so that we can send it very early
 # Configure display on a single screen (like for Apache CON @Home & JavaLand)
 
-# In workspace 2: SUPER+PUAGE_UP/DOWN to change workspace, Open slides:
+# In workspace 2: SUPER+PAGE_UP/DOWN to change workspace, Open slides:
 # ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus/Integration\ In\ The\ Cloud\ Era\ With\ Camel\ Quarkus.odp
 
 ----

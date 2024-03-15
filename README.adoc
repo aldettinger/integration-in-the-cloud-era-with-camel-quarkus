@@ -4,35 +4,6 @@
 
 [source,shell]
 ----
-# Provision "OpenShift 4 Serverless Foundations Lab" cluster and login, for instance:
-cd ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus
-openshift-configs/connect
-
-# Create knative-serving namespace
-oc create namespace knative-serving
-
-# Install OpenShift ServerLess Operator from the UI (https://docs.openshift.com/container-platform/4.6/serverless/installing_serverless/installing-openshift-serverless.html)
-+ Operators/Operator Hub/Filter (OpenShift ServerLess)
-+ Click Install / Subscribe
-+ Click "Installed Operators" / "OpenShift Serverless" / "KNative Serving - Create Instance "
-+ In the YAML view, set namespace to knative-serving
-+ Click create
-+ watch oc get pods -n knative-serving (wait all pods to be Running/Completed)
-
-# Deploy jvm and native projects to the cluster
-main_upstream
-mvn clean package -Dquarkus.kubernetes.deploy=true
-
-# Finalize openshift configuration
-./openshift-configs/installing-demo.sh
-
-# Open terminator and configure for knative demo
-cd ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus
-# Split window horizontally, and run each command in its own shell
-. openshift-configs/before-running-demo.sh
-watch "oc describe quota mem-quota && echo '' && oc get pods | grep -v build"
-# Tune the zoom (CTRL + scroll 9x) in all shell
-
 
 # Open terminator and configure the local rest demo
 cd ~/dev/demos/camel-quarkus-demos/integration-in-the-cloud-era-with-camel-quarkus/rest-to-nats-demo/
@@ -133,8 +104,6 @@ hello-native
 ----------------------------------------------------------------------------------------------------------------------
 
 Raw notes for demo/improvements:
-
-Check how to simply deploy on openshift (https://developers.redhat.com/blog/2020/04/24/ramp-up-on-quarkus-a-kubernetes-native-java-framework/)
 
 @TODO: Migrate to newer nats image
 @TODO: Fake the native compilation (it disturbs the demo, for instance it competes with resources from the conferencing system, could be slower)
